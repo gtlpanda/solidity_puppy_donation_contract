@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity <0.9.0;
+pragma solidity ^0.8.0;
 
-contract donations {
+import "hardhat/console.sol";
+
+contract puppyDonations {
     // charity addresses
     address payable[] public charityAddresses;
-    // highest donation
     uint256 highestDonation;
-    // total donations
     uint256 sumDonations = 0;
     uint256 sumDonationAmount;
     address payable highestDoner;
@@ -31,16 +31,16 @@ contract donations {
     }
 
     // validate that the amount to send is not zero
-    modifier validateDonation(uint256 donationAmount) {
-        // checks if the amount to donate is larger than 0, donation amount is less than ether in wallet, and
-        require(
-            donationAmount > 0 &&
-                donationAmount >
-                address(0x847167cfCe5730d88A467a458f600ae99AEF6A78).balance, // this address is a hardhat generated contract for testing purposes
-            "Donation amount needs to be higher than 0 AND less than the balance in your wallet."
-        );
-        _;
-    }
+    // modifier validateDonation(uint256 donationAmount) {
+    //     // checks if the amount to donate is larger than 0, donation amount is less than ether in wallet, and
+    //     require(
+    //         donationAmount > 0 &&
+    //             donationAmount >
+    //             address(0x847167cfCe5730d88A467a458f600ae99AEF6A78).balance, // this address is a hardhat generated contract for testing purposes
+    //         "Donation amount needs to be higher than 0 AND less than the balance in your wallet."
+    //     );
+    //     _;
+    // }
     // Validates that the charity index number provided is a valid one.
     //
     // @param charityIndex The target charity index to validate. Indexes start from 0 and increment by 1.
@@ -58,17 +58,14 @@ contract donations {
     // donation function
     function donateToPuppies(
         address payable destinationAddress,
-        uint256 charityIndex,
-        uint256 donationAmount
+        uint256 donationAmount,
+        uint256 charityIndex
     )
         public
         payable
         validateDestinationCheck(destinationAddress)
-        validateDonation(donationAmount)
         validateCharity(charityIndex)
     {
-        // set donationmade to value inserted
-        uint256 donationMade = msg.value;
         // I still need to map the index of addresses but basically when you select one of the addresses form the array, you transfer the amount there
         charityAddresses[charityIndex].transfer(donationAmount);
 
