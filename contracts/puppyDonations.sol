@@ -3,13 +3,21 @@ pragma solidity <0.9.0;
 
 contract donations {
     // charity addresses
-    address payable[] public charityAddress;
+    address payable[] public charityAddresses;
     // highest donation
     uint256 highestDonation;
     // total donations
     uint256 sumDonations = 0;
     uint256 sumDonationAmount;
     address payable highestDoner;
+    address payable owner;
+
+    constructor(address payable[] memory addresses_) {
+        owner = payable(msg.sender);
+        charityAddresses = addresses_;
+        sumDonationAmount = 0;
+        highestDonation = 0;
+    }
 
     /// Validates that the sender originated the transfer is different than the target destination. Destination address is
     modifier validateDestinationCheck(
@@ -38,7 +46,7 @@ contract donations {
     // @param charityIndex The target charity index to validate. Indexes start from 0 and increment by 1.
     modifier validateCharity(uint256 charityIndex) {
         require(
-            charityIndex <= charityAddress.length - 1,
+            charityIndex <= charityAddresses.length - 1,
             "Invalid charity index."
         );
         _;
@@ -62,7 +70,7 @@ contract donations {
         // set donationmade to value inserted
         uint256 donationMade = msg.value;
         // I still need to map the index of addresses but basically when you select one of the addresses form the array, you transfer the amount there
-        charityAddress[charityIndex].transfer(donationAmount);
+        charityAddresses[charityIndex].transfer(donationAmount);
 
         // emitting an event, not sure why
         emit Donation(msg.sender, donationAmount);
@@ -73,5 +81,27 @@ contract donations {
             highestDonation = donationAmount;
             highestDoner = payable(msg.sender);
         }
+    }
+
+    // Returns all the available charity addresses.
+    // @return charityAddresses
+    function getAddresses() public view returns (address payable[] memory) {
+        return charityAddresses;
+    }
+
+    // Returns the total amount raised by all donations (in wei) towards any charity.
+    // @return totalDonationsAmount
+    function returnSumDonationAmount() public view returns (uint256) {
+        return sumDonationAmount;
+    }
+
+    // Returns the address that made the highest donation, along with the amount donated.
+    // @return (highestDonation, highestDonor)
+    function getHighestDonation()
+        public
+        view
+        returns (uint256, address payable)
+    {
+        return (highestDonation, highestDoner);
     }
 }
